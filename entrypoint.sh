@@ -8,7 +8,7 @@ set -e
 echo -n "Pulling reader feed... "
 git config --global user.name "${GITHUB_ACTOR}"
 git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-git clone --depth=1 --single-branch --branch "${INPUT_BRANCH}" "https://x-access-token:${INPUT_GITHUBTOKEN}@github.com/${GITHUB_REPOSITORY}.git" /tmp/reader
+git clone --quiet --depth=1 --single-branch --branch "${INPUT_BRANCH}" "https://x-access-token:${INPUT_GITHUBTOKEN}@github.com/${GITHUB_REPOSITORY}.git" /tmp/reader
 cd /tmp/reader
 echo "✅"
 
@@ -17,8 +17,8 @@ echo -n "Updating reader feed... "
 echo "✅"
 
 echo -n "Publishing reader feed... "
-git add -A && git commit --allow-empty -am "Update reader feed at $(date -u)"
-git push --force
+git add -A && git commit --quiet --allow-empty -am "Update reader feed at $(date -u)"
+git push --quiet --force
 echo "✅"
 
 echo "Successfully updated reader feed 🎉"
