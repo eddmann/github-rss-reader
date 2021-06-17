@@ -1,0 +1,45 @@
+name: 'GitHub RSS Reader'
+
+inputs:
+  githubToken:
+    description: 'GitHub personal access token with repository permissions'
+    required: true
+  branch:
+    description: 'The branch to push the generated reader feed to'
+    required: false
+    default: 'gh-pages'
+  template:
+    description: 'The Jinja2 reader feed template to use'
+    required: false
+    default: |
+      <!DOCTYPE html>
+      <html lang='en'>
+      <head>
+        <meta charset='UTF-8' />
+        <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+        <title>GitHub RSS Reader</title>
+        <link rel='stylesheet' href='//fonts.xz.style/serve/inter.css' />
+        <link rel='stylesheet' href='//cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css' />
+      </head>
+      <body>
+        <header>
+          <h1>GitHub RSS Reader</h1>
+        </header>
+        {% for post in posts %}
+          <h4>{{ post.title }}</h4>
+          <a href="{{ post.feed_url }}">{{ post.feed_title }}</a>
+          <time datetime='{{ post.date }}'>{{ post.date }}</date>
+          <p>{{ post.description }}</p>
+          <a href='{{ post.url }}' target='_blank'>Read more</a>
+        {% endfor %}
+      </body>
+      </html>
+  feeds:
+    description: 'List of feeds to generate the reader feed from'
+    required: false
+    default: |
+      https://eddmann.com/rss.xml
+
+runs:
+  using: 'docker'
+  image: 'docker://eddmann/github-rss-reader:v1'
