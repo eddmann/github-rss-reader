@@ -357,6 +357,7 @@ dependencies = [
 name = "github-rss-reader"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "openssl",
  "reqwest",
  "rss",

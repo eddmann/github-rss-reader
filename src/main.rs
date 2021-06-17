@@ -1,3 +1,4 @@
+use chrono::DateTime;
 use rss::Channel;
 use serde::Serialize;
 use std::env;
@@ -14,6 +15,16 @@ struct Post {
     url: String,
 }
 
+fn parse_date(date: &str) -> Option<String> {
+    Some(
+        match DateTime::parse_from_rfc3339(date) {
+            Ok(date) => date,
+            Err(_) => DateTime::parse_from_rfc2822(date).ok()?,
+        }
+        .to_rfc3339(),
+    )
+}
+
 fn fetch_posts(feed_url: &str) -> Option<Vec<Post>> {
     let response = reqwest::blocking::get(feed_url).ok()?.bytes().ok()?;
     let feed = Channel::read_from(&response[..]).ok()?;
@@ -26,7 +37,7 @@ fn fetch_posts(feed_url: &str) -> Option<Vec<Post>> {
                     feed_title: feed.title().to_string(),
                     feed_url: feed.link().to_string(),
                     title: post.title()?.to_string(),
-                    date: post.pub_date().unwrap_or_default().to_string(),
+                    date: parse_date(post.pub_date()?)?,
                     description: post.description().unwrap_or_default().to_string(),
                     url: post.link()?.to_string(),
                 })
