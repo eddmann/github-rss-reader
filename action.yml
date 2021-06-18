@@ -42,4 +42,4 @@ inputs:
 
 runs:
   using: 'docker'
-  image: 'docker://eddmann/github-rss-reader:v1'
+  image: 'docker://ghcr.io/eddmann/github-rss-reader:v1'
