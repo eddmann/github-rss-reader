@@ -3,6 +3,10 @@ name: Release Action
 on:
   push:
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Release Action to GitHub Packages
