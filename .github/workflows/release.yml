@@ -1,0 +1,26 @@
+name: Release Action
+
+on:
+  push:
+
+jobs:
+  build:
+    name: Release Action to GitHub Packages
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Login to Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.CR_TOKEN }}
+      - name: Build and Push Action
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/github-rss-reader:v1
