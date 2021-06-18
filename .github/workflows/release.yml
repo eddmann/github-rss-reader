@@ -11,9 +11,6 @@ jobs:
   build:
     name: Release Action to GitHub Packages
     runs-on: ubuntu-latest
-    permissions:
-      packages: write
-      contents: read
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
