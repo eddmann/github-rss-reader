@@ -13,7 +13,7 @@ cd /tmp/reader
 echo "✅"
 
 echo -n "Updating reader feed... "
-/github-rss-reader "${INPUT_TEMPLATE}" "${INPUT_FEEDS}" > index.html
+/github-rss-reader "${INPUT_TEMPLATE}" "${INPUT_FEEDS}" 1> index.html
 echo "✅"
 
 echo -n "Publishing reader feed... "
