@@ -1,5 +1,3 @@
-use chrono::DateTime;
-use rss::Channel;
 use serde::Serialize;
 use std::env;
 use tera::Context;
@@ -15,31 +13,29 @@ struct Post {
     url: String,
 }
 
-fn parse_date(date: &str) -> Option<String> {
-    Some(
-        match DateTime::parse_from_rfc3339(date) {
-            Ok(date) => date,
-            Err(_) => DateTime::parse_from_rfc2822(date).ok()?,
-        }
-        .to_rfc3339(),
-    )
-}
-
 fn fetch_posts(feed_url: &str) -> Option<Vec<Post>> {
     let response = reqwest::blocking::get(feed_url).ok()?.bytes().ok()?;
-    let feed = Channel::read_from(&response[..]).ok()?;
+    let feed = feed_rs::parser::parse(&response[..]).ok()?;
 
     Some(
-        feed.items
+        feed.entries
             .iter()
             .filter_map(|post| {
                 Some(Post {
-                    feed_title: feed.title().to_string(),
-                    feed_url: feed.link().to_string(),
-                    title: post.title()?.to_string(),
-                    date: parse_date(post.pub_date()?)?,
-                    description: post.description().unwrap_or_default().to_string(),
-                    url: post.link()?.to_string(),
+                    feed_title: feed.title.as_ref()?.content.to_string(),
+                    feed_url: feed_url.to_string(),
+                    title: post.title.as_ref()?.content.to_string(),
+                    date: post
+                        .published
+                        .or_else(|| post.updated)
+                        .as_ref()?
+                        .to_rfc3339(),
+                    description: if let Some(summary) = post.summary.as_ref() {
+                        summary.content.to_string()
+                    } else {
+                        "".to_string()
+                    },
+                    url: post.links.first()?.href.to_string(),
                 })
             })
             .collect(),
@@ -53,7 +49,13 @@ fn main() -> Result<(), String> {
 
     let posts: Vec<Post> = feeds
         .iter()
-        .filter_map(|&feed_url| fetch_posts(feed_url))
+        .filter_map(|&feed_url| {
+            let posts = fetch_posts(feed_url);
+            if posts.is_none() || posts.as_ref().unwrap().is_empty() {
+                eprintln!("No parseable posts found for: {}", feed_url)
+            };
+            posts
+        })
         .flatten()
         .collect();
 
